@@ -27,6 +27,8 @@ module.exports = function LifeTree() {
   life.Child = life.fn(() => {
     const child = LifeTree();
     children.push(child);
+
+    return child;
   });
 
   life.KillerChild = life.fn(() => {
@@ -38,4 +40,6 @@ module.exports = function LifeTree() {
     killChildren();
     alive = false;
   };
+
+  return life;
 };
