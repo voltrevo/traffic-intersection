@@ -1,12 +1,24 @@
 'use strict';
 
+const EventEmitter = require('voltrevo-event-emitter');
+
+const delay = require('./delay');
 const LifeTree = require('./LifeTree');
 
 module.exports = function TrafficLight({ life = LifeTree() } = {}) {
   const light = {};
 
-  let color = 'red'; // red/amber/green
-  light.color = () => color;
+  light.events = EventEmitter();
+
+  const setColor = (() => {
+    let color = 'red'; // red/amber/green
+    light.color = () => color;
+
+    return (newColor) => {
+      color = newColor;
+      light.events.emit('color-change', newColor);
+    };
+  })();
 
   let action = {
     type: 'stop',
@@ -19,12 +31,12 @@ module.exports = function TrafficLight({ life = LifeTree() } = {}) {
     }
 
     const methodLife = life.KillerChild();
-    color = 'amber';
+    setColor('amber');
 
     action = {
       type: 'stop',
       promise: delay(2000).then(methodLife.fn(() => {
-        color = 'red';
+        setColor('red');
         return delay(2000);
       })),
     };
@@ -38,7 +50,7 @@ module.exports = function TrafficLight({ life = LifeTree() } = {}) {
     }
 
     life.KillerChild();
-    color = 'green';
+    setColor('green');
 
     action = {
       type: 'go',
