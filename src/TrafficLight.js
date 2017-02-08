@@ -11,13 +11,17 @@ module.exports = function TrafficLight({ life = LifeTree() } = {}) {
   light.events = EventEmitter();
 
   const setColor = (() => {
-    let color = 'red'; // red/amber/green
+    let color; // red/amber/green
     light.color = () => color;
 
-    return (newColor) => {
+    const setter = (newColor) => {
       color = newColor;
       light.events.emit('color-change', newColor);
     };
+
+    setter('red');
+
+    return setter;
   })();
 
   let action = {
