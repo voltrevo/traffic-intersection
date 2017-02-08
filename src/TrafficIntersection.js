@@ -20,7 +20,7 @@ module.exports = function TrafficIntersection({
   const lights = lightNames.map((lightName) => {
     const light = TrafficLight({ life: lightsLife.Child() });
 
-    light.on('color-change', (newColor) => {
+    light.events.on('color-change', (newColor) => {
       intersection.events.emit('color-change', { lightName, newColor });
     });
 
