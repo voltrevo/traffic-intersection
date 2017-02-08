@@ -2,15 +2,30 @@
 
 /* eslint-disable comma-dangle */
 
+const EventEmitter = require('voltrevo-event-emitter');
+
 const LifeTree = require('./LifeTree');
-const range = require('./range');
 const TrafficLight = require('./TrafficLight');
 
-module.exports = function TrafficIntersection({ life = LifeTree() } = {}) {
+module.exports = function TrafficIntersection({
+  life = LifeTree(),
+  lightNames = ['NorthSouth', 'EastWest'],
+} = {}) {
   const intersection = {};
 
+  intersection.events = EventEmitter();
+
   const lightsLife = life.Child();
-  const lights = range(2).map(() => TrafficLight({ life: lightsLife.Child() }));
+
+  const lights = lightNames.map((lightName) => {
+    const light = TrafficLight({ life: lightsLife.Child() });
+
+    light.on('color-change', (newColor) => {
+      intersection.events.emit('color-change', { lightName, newColor });
+    });
+
+    return light;
+  });
 
   const methodsLife = life.Child();
   let nextLightIndex = 0;
